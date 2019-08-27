@@ -1,5 +1,3 @@
-import re
-
 from cloudshell.cli.command_template.command_template_executor import CommandTemplateExecutor
 from cloudshell.snmp.snmp_parameters import SNMPV3Parameters
 
@@ -30,19 +28,6 @@ class SnmpV3Actions(object):
         """
         self._cli_service = cli_service
         self._logger = logger
-
-    # todo: rework !!!
-    def is_snmp_running(self, action_map=None, error_map=None):
-        """
-
-        :return:
-        """
-        snmp_status = CommandTemplateExecutor(cli_service=self._cli_service,
-                                              command_template=snmpv3.SHOW_SNMP_STATUS,
-                                              action_map=action_map,
-                                              error_map=error_map).execute_command()
-        return False
-        # return bool(re.search(r"current[\s]+status[\s]+active", snmp_status, flags=re.IGNORECASE | re.MULTILINE))
 
     def enable_snmp(self, action_map=None, error_map=None):
         """
@@ -79,14 +64,30 @@ class SnmpV3Actions(object):
         except KeyError:
             raise Exception("Privacy Protocol {} is not supported".format(snmp_priv_proto))
 
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=snmpv3.ADD_SNMP_USER,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command(snmp_user=snmp_user,
-                                                                            snmp_auth_proto=auth_command_template,
-                                                                            snmp_password=snmp_password,
-                                                                            snmp_priv_proto=priv_command_template,
-                                                                            snmp_priv_key=snmp_priv_key)
+        output = CommandTemplateExecutor(cli_service=self._cli_service,
+                                         command_template=snmpv3.ADD_SNMP_USER,
+                                         action_map=action_map,
+                                         error_map=error_map).execute_command(snmp_user=snmp_user)
+
+        if snmp_auth_proto != SNMPV3Parameters.AUTH_NO_AUTH:
+            output += CommandTemplateExecutor(
+                cli_service=self._cli_service,
+                command_template=snmpv3.ADD_SNMP_USER_AUTH,
+                action_map=action_map,
+                error_map=error_map).execute_command(snmp_user=snmp_user,
+                                                     snmp_auth_proto=auth_command_template,
+                                                     snmp_password=snmp_password)
+
+        if snmp_priv_proto != SNMPV3Parameters.PRIV_NO_PRIV:
+            output += CommandTemplateExecutor(
+                cli_service=self._cli_service,
+                command_template=snmpv3.ADD_SNMP_USER_PRIV,
+                action_map=action_map,
+                error_map=error_map).execute_command(snmp_user=snmp_user,
+                                                     snmp_priv_proto=priv_command_template,
+                                                     snmp_priv_key=snmp_priv_key)
+
+        return output
 
     def remove_snmp_user(self, snmp_user, action_map=None, error_map=None):
         """
@@ -109,6 +110,6 @@ class SnmpV3Actions(object):
         :return:
         """
         return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=snmpv3.DISABLE_SNMP_USER,
+                                       command_template=snmpv3.DISABLE_SNMP,
                                        action_map=action_map,
                                        error_map=error_map).execute_command()
