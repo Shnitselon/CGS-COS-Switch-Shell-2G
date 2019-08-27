@@ -96,7 +96,35 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
         :return The configuration file name.
         :rtype: str
         """
-        pass
+        logger = get_logger_with_thread_id(context)
+        logger.info('Save command started')
+
+        with ErrorHandlingContext(logger):
+            api = get_api(context)
+            resource_config = create_networking_resource_from_context(shell_name=self.SHELL_NAME,
+                                                                      supported_os=self.SUPPORTED_OS,
+                                                                      context=context)
+            if not configuration_type:
+                configuration_type = 'running'
+
+            if not vrf_management_name:
+                vrf_management_name = resource_config.vrf_management_name
+
+            cli_handler = CgsCliHandler(cli=self._cli,
+                                        resource_config=resource_config,
+                                        logger=logger,
+                                        api=api)
+
+            configuration_operations = CgsConfigurationRunner(cli_handler=cli_handler,
+                                                              logger=logger,
+                                                              resource_config=resource_config,
+                                                              api=api)
+
+            response = configuration_operations.save(folder_path=folder_path, configuration_type=configuration_type,
+                                                     vrf_management_name=vrf_management_name)
+
+            logger.info('Save command ended with response: {}'.format(response))
+            return response
 
     def load_firmware(self, context, cancellation_context, path, vrf_management_name):
         """
@@ -121,7 +149,6 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
 
         with ErrorHandlingContext(logger):
             api = get_api(context)
-
             resource_config = create_networking_resource_from_context(shell_name=self.SHELL_NAME,
                                                                       supported_os=self.SUPPORTED_OS,
                                                                       context=context)
@@ -153,7 +180,6 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
 
         with ErrorHandlingContext(logger):
             api = get_api(context)
-
             resource_config = create_networking_resource_from_context(shell_name=self.SHELL_NAME,
                                                                       supported_os=self.SUPPORTED_OS,
                                                                       context=context)
@@ -312,18 +338,13 @@ if __name__ == "__main__":
     from cloudshell.shell.core.driver_context import ResourceCommandContext, ResourceContextDetails, \
         ReservationContextDetails
 
-    def prepare_context():
+    def prepare_context(address="192.168.85.14", user="admin", password="admin", port=8888):
         """
         :return:
         """
         """Return initialized driver instance"""
-        address = '192.168.42.201'
-        user = 'admin'
-        password = 'admin'
-        port = 8888
-
         context = ResourceCommandContext(*(None,) * 4)
-        context.resource = ResourceContextDetails(*(None,) * 13)
+        context.resource = ResourceContextDetails(*(None,) * 10)
         context.resource.name = "CGS COS Switch Shell 2G"
         context.resource.fullname = "CGS COS Switch Shell 2G"
         context.resource.address = address
@@ -348,27 +369,27 @@ if __name__ == "__main__":
                             # SNMP v2 Read-only
                             # ("SNMP Version", "2"),
                             # ("Enable SNMP", "True"),
-                            # ("Disable SNMP", "False"),
+                            # ("Disable SNMP", "True"),
                             # ("SNMP Read Community", "mynotsosecretpassword"),
                             # End SNMP v2 Read-only
 
                             # SNMP v2 Read-Write
                             # ("SNMP Version", "2"),
                             # ("Enable SNMP", "True"),
-                            # ("Disable SNMP", "False"),
-                            # ("SNMP Write Community", "public"),
+                            # ("Disable SNMP", "True"),
+                            # ("SNMP Write Community", "public_33"),
                             # End SNMP v2 Read-Write
 
                             # SNMP v3
                             ("SNMP Version", "3"),
                             ("Enable SNMP", "True"),
-                            ("Disable SNMP", "False"),
-                            ("SNMP V3 User", "quali"),
+                            ("Disable SNMP", "True"),
+                            ("SNMP V3 User", "quali_NEW_33"),
                             ("SNMP V3 Password", "qualipass"),
                             ("SNMP V3 Private Key", "qualipass2"),
-                            ("SNMP V3 Authentication Protocol", "MD5"),
+                            ("SNMP V3 Authentication Protocol", "No Authentication Protocol"),
                             # "No Authentication Protocol", "MD5", "SHA"
-                            ("SNMP V3 Privacy Protocol", "DES"),
+                            ("SNMP V3 Privacy Protocol", "No Privacy Protocol"),
                             # "No Privacy Protocol", "DES", "3DES-EDE", "AES-128", "AES-192", "AES-256"
                             # End SNMP v3
                             ]:
@@ -526,14 +547,14 @@ if __name__ == "__main__":
         return dr.ApplyConnectivityChanges(context, json.dumps(request))
 
 
-    context = prepare_context()
+    context = prepare_context(address="192.168.42.201")
     dr = get_driver(context)
 
     with mock.patch("__main__.get_api") as aa:
         get_api.return_value.DecryptPassword = lambda x: mock.MagicMock(Value=x)
 
         # get inventory
-        print get_inventory(driver=dr, context=context)
+        # print get_inventory(driver=dr, context=context)
 
         # health check
         # print health_check(driver=dr, context=context)
@@ -560,11 +581,11 @@ if __name__ == "__main__":
         #            configuration_type="shalk",
         #            vrf_management_name="")
         #
-        # print save(driver=dr,
-        #            context=context,
-        #            folder_path="ftp://test_user:test_password@192.168.42.102",
-        #            configuration_type="shalk",
-        #            vrf_management_name="")
+        print save(driver=dr,
+                   context=context,
+                   folder_path="ftp://test_user:test_password@192.168.42.102",
+                   configuration_type="running",
+                   vrf_management_name="")
         #
         # print restore(driver=dr,
         #               context=context,
