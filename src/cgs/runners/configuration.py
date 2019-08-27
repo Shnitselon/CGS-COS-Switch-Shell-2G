@@ -1,7 +1,7 @@
 from cloudshell.devices.runners.configuration_runner import ConfigurationRunner
 
-from cgs.flows.restore_flow import CgsRestoreFlow
-from cgs.flows.save_flow import CgsSaveFlow
+from cgs.flows.restore import CgsRestoreFlow
+from cgs.flows.save import CgsSaveFlow
 
 
 class CgsConfigurationRunner(ConfigurationRunner):

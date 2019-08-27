@@ -9,7 +9,7 @@ from cloudshell.devices.runners.run_command_runner import RunCommandRunner
 from cloudshell.shell.core.driver_utils import GlobalLock
 from cloudshell.shell.core.resource_driver_interface import ResourceDriverInterface
 
-from cgs.autoload.snmp import CgsSnmpHandler
+from cgs.snmp.handler import CgsSnmpHandler
 from cgs.cli.handler import CgsCliHandler
 from cgs.runners.autoload import CgsAutoloadRunner
 from cgs.runners.configuration import CgsConfigurationRunner
@@ -22,9 +22,7 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
     SHELL_NAME = "CGS COS Switch Shell 2G"
 
     def __init__(self):
-        """
-        ctor must be without arguments, it is created with reflection at run time
-        """
+        """ctor must be without arguments, it is created with reflection at run time"""
         super(CgsCosSwitchShell2GDriver, self).__init__()
         self._cli = None
 
@@ -77,8 +75,8 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
             return response
 
     def restore(self, context, cancellation_context, path, configuration_type, restore_method, vrf_management_name):
-        """
-        Restores a configuration file
+        """Restores a configuration file
+
         :param ResourceCommandContext context: The context object for the command with resource and reservation info
         :param CancellationContext cancellation_context: Object to signal a request for cancellation. Must be enabled in drivermetadata.xml as well
         :param str path: The path to the configuration file, including the configuration file name.
@@ -89,8 +87,8 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
         pass
 
     def save(self, context, cancellation_context, folder_path, configuration_type, vrf_management_name):
-        """
-        Creates a configuration file and saves it to the provided destination
+        """Creates a configuration file and saves it to the provided destination
+
         :param ResourceCommandContext context: The context object for the command with resource and reservation info
         :param CancellationContext cancellation_context: Object to signal a request for cancellation. Must be enabled in drivermetadata.xml as well
         :param str configuration_type: Specify whether the file should update the startup or running config. Value can one
@@ -144,6 +142,7 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
 
     def run_custom_config_command(self, context, cancellation_context, custom_command):
         """Executes a custom command on the device in configuration mode
+
         :param ResourceCommandContext context: The context object for the command with resource and reservation info
         :param CancellationContext cancellation_context: Object to signal a request for cancellation. Must be enabled in drivermetadata.xml as well
         :param str custom_command: The command to run. Note that commands that require a response are not supported.
@@ -235,26 +234,6 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
         :param str custom_params: Set of custom parameters for the restore operation
         :return: None
         """
-        '''
-        # The saved_details JSON will be defined according to the JSON Schema and is the same object returned via the
-        # orchestration save function.
-        # Example input:
-        # {
-        #     "saved_artifact": {
-        #      "artifact_type": "REPLACE_WITH_ARTIFACT_TYPE",
-        #      "identifier": "16_08_09 11_21_35_657000"
-        #     },
-        #     "resource_name": "some_resource",
-        #     "restore_rules": {
-        #      "requires_same_resource": true
-        #     },
-        #     "created_date": "2016-08-09T11:21:35.657000"
-        #    }
-
-        # The example code below just parses and prints the saved artifact identifier
-        saved_details_object = json.loads(saved_details)
-        return saved_details_object[u'saved_artifact'][u'identifier']
-        '''
         pass
 
     def ApplyConnectivityChanges(self, context, request):
@@ -339,7 +318,7 @@ if __name__ == "__main__":
         :return:
         """
         """Return initialized driver instance"""
-        address = '192.168.85.10'
+        address = '192.168.42.201'
         user = 'admin'
         password = 'admin'
         port = 8888
@@ -370,7 +349,7 @@ if __name__ == "__main__":
                             # SNMP v2 Read-only
                             # ("SNMP Version", "2"),
                             # ("Enable SNMP", "True"),
-                            # ("Disable SNMP", "True"),
+                            # ("Disable SNMP", "False"),
                             # ("SNMP Read Community", "mynotsosecretpassword"),
                             # End SNMP v2 Read-only
 
@@ -384,13 +363,13 @@ if __name__ == "__main__":
                             # SNMP v3
                             ("SNMP Version", "3"),
                             ("Enable SNMP", "True"),
-                            ("Disable SNMP", "True"),
+                            ("Disable SNMP", "False"),
                             ("SNMP V3 User", "quali"),
                             ("SNMP V3 Password", "qualipass"),
                             ("SNMP V3 Private Key", "qualipass2"),
-                            ("SNMP V3 Authentication Protocol", "No Authentication Protocol"),
+                            ("SNMP V3 Authentication Protocol", "MD5"),
                             # "No Authentication Protocol", "MD5", "SHA"
-                            ("SNMP V3 Privacy Protocol", "No Privacy Protocol"),
+                            ("SNMP V3 Privacy Protocol", "DES"),
                             # "No Privacy Protocol", "DES", "3DES-EDE", "AES-128", "AES-192", "AES-256"
                             # End SNMP v3
                             ]:
@@ -551,54 +530,56 @@ if __name__ == "__main__":
     context = prepare_context()
     dr = get_driver(context)
 
-    # get inventory
-    # print get_inventory(driver=dr, context=context)
+    with mock.patch("__main__.get_api") as aa:
+        get_api.return_value.DecryptPassword = lambda x: mock.MagicMock(Value=x)
 
-    # # health check
-    # print health_check(driver=dr, context=context)
-    #
-    # # shutdown
-    # print shutdown(driver=dr, context=context)
-    #
-    # # run custom command
-    with mock.patch("__main__.get_api"):
-        print run_custom_command(driver=dr, context=context)
-    #
-    # # run custom config command
-    # print run_custom_config_command(driver=dr, context=context)
-    #
-    # # run save command
-    # print save(driver=dr,
-    #            context=context,
-    #            folder_path="",
-    #            configuration_type="running",
-    #            vrf_management_name="")
-    #
-    # print save(driver=dr,
-    #            context=context,
-    #            folder_path="scp://quali:quali@192.168.85.13/home/quali",
-    #            configuration_type="shalk",
-    #            vrf_management_name="")
-    #
-    # print save(driver=dr,
-    #            context=context,
-    #            folder_path="ftp://test_user:test_password@192.168.42.102",
-    #            configuration_type="shalk",
-    #            vrf_management_name="")
-    #
-    # print restore(driver=dr,
-    #               context=context,
-    #               path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106",
-    #               configuration_type="running",
-    #               restore_method="override",
-    #               vrf_management_name="")
-    #
-    # print load_firmware(driver=dr,
-    #                     context=context,
-    #                     path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106")
+        # get inventory
+        print get_inventory(driver=dr, context=context)
 
-    # # run apply connectivity changes | set VLAN
-    # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
-    #
-    # # run apply connectivity changes | remove VLAN
-    # print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")
+        # health check
+        # print health_check(driver=dr, context=context)
+        #
+        # # shutdown
+        # print shutdown(driver=dr, context=context)
+        #
+        # # run custom command
+        # print run_custom_command(driver=dr, context=context)
+        #
+        # run custom config command
+        # print run_custom_config_command(driver=dr, context=context)
+        #
+        # # run save command
+        # print save(driver=dr,
+        #            context=context,
+        #            folder_path="",
+        #            configuration_type="running",
+        #            vrf_management_name="")
+        #
+        # print save(driver=dr,
+        #            context=context,
+        #            folder_path="scp://quali:quali@192.168.85.13/home/quali",
+        #            configuration_type="shalk",
+        #            vrf_management_name="")
+        #
+        # print save(driver=dr,
+        #            context=context,
+        #            folder_path="ftp://test_user:test_password@192.168.42.102",
+        #            configuration_type="shalk",
+        #            vrf_management_name="")
+        #
+        # print restore(driver=dr,
+        #               context=context,
+        #               path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106",
+        #               configuration_type="running",
+        #               restore_method="override",
+        #               vrf_management_name="")
+        #
+        # print load_firmware(driver=dr,
+        #                     context=context,
+        #                     path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106")
+
+        # # run apply connectivity changes | set VLAN
+        # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
+        #
+        # # run apply connectivity changes | remove VLAN
+        # print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")

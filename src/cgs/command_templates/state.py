@@ -1,3 +1,4 @@
 from cloudshell.cli.command_template.command_template import CommandTemplate
 
-DISABLE_PAGINATION = CommandTemplate("system cli session paginate false")
+
+SHUTDOWN = CommandTemplate("shutdown....")
