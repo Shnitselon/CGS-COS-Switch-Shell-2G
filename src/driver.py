@@ -14,6 +14,7 @@ from cgs.cli.handler import CgsCliHandler
 from cgs.runners.autoload import CgsAutoloadRunner
 from cgs.runners.configuration import CgsConfigurationRunner
 from cgs.runners.connectivity import CgsConnectivityRunner
+from cgs.runners.firmware import CgsFirmwareRunner
 from cgs.runners.state import CgsStateRunner
 
 
@@ -73,6 +74,7 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
 
             return response
 
+    @GlobalLock.lock
     def restore(self, context, cancellation_context, path, configuration_type, restore_method, vrf_management_name):
         """Restores a configuration file
 
@@ -83,7 +85,35 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
         :param str configuration_type: Specify whether the file should update the startup or running config.
         :param str vrf_management_name: Optional. Virtual routing and Forwarding management name
         """
-        pass
+        logger = get_logger_with_thread_id(context)
+        logger.info('Restore command started')
+
+        with ErrorHandlingContext(logger):
+            api = get_api(context)
+            resource_config = create_networking_resource_from_context(shell_name=self.SHELL_NAME,
+                                                                      supported_os=self.SUPPORTED_OS,
+                                                                      context=context)
+
+            configuration_type = configuration_type or "running"
+            restore_method = restore_method or "override"
+            vrf_management_name = vrf_management_name or resource_config.vrf_management_name
+
+            cli_handler = CgsCliHandler(cli=self._cli,
+                                        resource_config=resource_config,
+                                        logger=logger,
+                                        api=api)
+
+            configuration_operations = CgsConfigurationRunner(cli_handler=cli_handler,
+                                                              logger=logger,
+                                                              resource_config=resource_config,
+                                                              api=api)
+
+            configuration_operations.restore(path=path,
+                                             restore_method=restore_method,
+                                             configuration_type=configuration_type,
+                                             vrf_management_name=vrf_management_name)
+
+            logger.info("Restore command ended")
 
     def save(self, context, cancellation_context, folder_path, configuration_type, vrf_management_name):
         """Creates a configuration file and saves it to the provided destination
@@ -104,11 +134,8 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
             resource_config = create_networking_resource_from_context(shell_name=self.SHELL_NAME,
                                                                       supported_os=self.SUPPORTED_OS,
                                                                       context=context)
-            if not configuration_type:
-                configuration_type = 'running'
-
-            if not vrf_management_name:
-                vrf_management_name = resource_config.vrf_management_name
+            configuration_type = configuration_type or "running"
+            vrf_management_name = vrf_management_name or resource_config.vrf_management_name
 
             cli_handler = CgsCliHandler(cli=self._cli,
                                         resource_config=resource_config,
@@ -126,14 +153,33 @@ class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
             logger.info('Save command ended with response: {}'.format(response))
             return response
 
+    @GlobalLock.lock
     def load_firmware(self, context, cancellation_context, path, vrf_management_name):
-        """
-        Upload and updates firmware on the resource
+        """Upload and updates firmware on the resource
+
         :param ResourceCommandContext context: The context object for the command with resource and reservation info
         :param str path: path to tftp server where firmware file is stored
         :param str vrf_management_name: Optional. Virtual routing and Forwarding management name
         """
-        pass
+        logger = get_logger_with_thread_id(context)
+        logger.info('Load firmware command started')
+
+        with ErrorHandlingContext(logger):
+            api = get_api(context)
+            resource_config = create_networking_resource_from_context(shell_name=self.SHELL_NAME,
+                                                                      supported_os=self.SUPPORTED_OS,
+                                                                      context=context)
+
+            vrf_management_name = vrf_management_name or resource_config.vrf_management_name
+
+            cli_handler = CgsCliHandler(cli=self._cli,
+                                        resource_config=resource_config,
+                                        logger=logger,
+                                        api=api)
+
+            firmware_operations = CgsFirmwareRunner(cli_handler=cli_handler, logger=logger)
+            response = firmware_operations.load_firmware(path=path, vrf_management_name=vrf_management_name)
+            logger.info('Load firmware command ended with response: {}'.format(response))
 
     def run_custom_command(self, context, cancellation_context, custom_command):
         """Executes a custom command on the device
@@ -548,6 +594,7 @@ if __name__ == "__main__":
 
 
     context = prepare_context(address="192.168.42.201")
+    # context = prepare_context(address="192.168.85.14")
     dr = get_driver(context)
 
     with mock.patch("__main__.get_api") as aa:
@@ -562,7 +609,7 @@ if __name__ == "__main__":
         # # shutdown
         # print shutdown(driver=dr, context=context)
         #
-        # # run custom command
+        # run custom command
         # print run_custom_command(driver=dr, context=context)
         #
         # run custom config command
@@ -574,26 +621,34 @@ if __name__ == "__main__":
         #            folder_path="",
         #            configuration_type="running",
         #            vrf_management_name="")
-        #
+
         # print save(driver=dr,
         #            context=context,
         #            folder_path="scp://quali:quali@192.168.85.13/home/quali",
         #            configuration_type="shalk",
         #            vrf_management_name="")
         #
-        print save(driver=dr,
-                   context=context,
-                   folder_path="ftp://test_user:test_password@192.168.42.102",
-                   configuration_type="running",
-                   vrf_management_name="")
+        # print save(driver=dr,
+        #            context=context,
+        #            folder_path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185",
+        #            configuration_type="running",
+        #            vrf_management_name="")
         #
         # print restore(driver=dr,
         #               context=context,
-        #               path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106",
+        #               path="ftp://dlpuser%40dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185/CGS_COS_Switch_Shell_2G-running-290819-173158",
         #               configuration_type="running",
         #               restore_method="override",
         #               vrf_management_name="")
         #
+
+        print restore(driver=dr,
+                      context=context,
+                      path="CGS_COS_Switch_Shell_2G-running-290819-173158",
+                      configuration_type="running",
+                      restore_method="override",
+                      vrf_management_name="")
+
         # print load_firmware(driver=dr,
         #                     context=context,
         #                     path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106")

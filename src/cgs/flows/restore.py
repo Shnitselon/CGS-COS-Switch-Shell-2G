@@ -1,5 +1,7 @@
-# from cloudshell.cumulus.linux.command_actions.system import SystemActions
+from cgs.command_actions.system import SystemActions
+
 from cloudshell.devices.flows.cli_action_flows import RestoreConfigurationFlow
+from cloudshell.devices.networking_utils import UrlParser
 
 
 class CgsRestoreFlow(RestoreConfigurationFlow):
@@ -12,20 +14,16 @@ class CgsRestoreFlow(RestoreConfigurationFlow):
         :param vrf_management_name:
         :return:
         """
-        pass
-        # with self._cli_handler.get_cli_service(self._cli_handler.root_mode) as cli_service:
-        #     system_actions = SystemActions(cli_service=cli_service, logger=self._logger)
-        #
-        #     self._logger.info("Downloading backup files...")
-        #     backup_file = system_actions.create_tmp_file()
-        #     system_actions.curl_download_file(remote_url=path, file_path=backup_file)
-        #
-        #     self._logger.info("Uncompressing backup files to the system...")
-        #     system_actions.tar_uncompress_folder(compressed_file=backup_file, destination="/")
-        #
-        #     self._logger.info("Reloading all auto interfaces...")
-        #     system_actions.if_reload()
-        #
-        #     for service in self.SERVICES_TO_RESTART:
-        #         self._logger.info("Restarting '{}' service...".format(service))
-        #         system_actions.restart_service(name=service)
+        url = UrlParser.parse_url(path)
+        config_file = url.get(UrlParser.FILENAME)
+
+        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
+            system_actions = SystemActions(cli_service=config_session, logger=self._logger)
+            if "://" in path:
+                with config_session.enter_mode(self._cli_handler.enable_mode):
+                    system_actions.import_config_file(config_file=config_file,
+                                                      remote_url=path,
+                                                      user=url.get(UrlParser.USERNAME),
+                                                      password=url.get(UrlParser.PASSWORD))
+
+            system_actions.load_config_file(config_file=config_file)

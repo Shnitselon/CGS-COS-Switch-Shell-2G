@@ -4,7 +4,7 @@
 from cloudshell.devices.flows.cli_action_flows import LoadFirmwareFlow
 
 
-class CgsFirmwareFlow(LoadFirmwareFlow):
+class CgsLoadFirmwareFlow(LoadFirmwareFlow):
     def execute_flow(self, path, vrf, timeout):
         """
 
@@ -13,7 +13,18 @@ class CgsFirmwareFlow(LoadFirmwareFlow):
         :param timeout:
         :return:
         """
-        pass
+        """
+        admin https (webui from 172.16.10.49) on since 2019-08-29 15:06:58 terminal mode
+        NPB-I(config)# system sw-upgrade 
+        Possible completions:
+          boot-bank   The bank the device will boot from on next reboot
+          file-name   The file name to download in URI syntax; protocol://path, for example: http://127.0.0.1:80/filename.bin.tar
+          password    The password to be used when accessing the download server
+          start       Start software upgrade now
+          stop        Stop software upgrade now
+          username    The username to be used when accessing the download server
+
+        """
         # with self._cli_handler.get_cli_service(self._cli_handler.root_mode) as cli_service:
         #     system_actions = SystemActions(cli_service=cli_service, logger=self._logger)
         #     firmware_actions = FirmwareActions(cli_service=cli_service, logger=self._logger)
