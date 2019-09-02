@@ -17,7 +17,6 @@ class CgsConfigurationRunner(ConfigurationRunner):
     def file_system(self):
         return "fake"
 
-
     def restore(self, path, configuration_type="running", restore_method="override", vrf_management_name=None):
         """Restore configuration on device from provided configuration file
         Restore configuration from local file system or ftp/tftp server into 'running-config' or 'startup-config'.
@@ -32,7 +31,8 @@ class CgsConfigurationRunner(ConfigurationRunner):
             vrf_management_name = vrf_management_name or self.resource_config.vrf_management_name
 
         self._validate_configuration_type(configuration_type)
-        import ipdb;ipdb.set_trace()
+        # todo: check with the backup type "File System"! It will fail because it passes path without adding
+        #  file system default prefix here
         path = self.get_path(path)
 
         self.restore_flow.execute_flow(path=path,

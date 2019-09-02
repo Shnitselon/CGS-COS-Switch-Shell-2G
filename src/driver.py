@@ -636,19 +636,18 @@ if __name__ == "__main__":
         #
         # print restore(driver=dr,
         #               context=context,
-        #               path="ftp://dlpuser%40dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185/CGS_COS_Switch_Shell_2G-running-290819-173158",
+        #               path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185/CGS_COS_Switch_Shell_2G-running-020919-151037",
         #               configuration_type="running",
         #               restore_method="override",
         #               vrf_management_name="")
-        #
-
+        # #
         print restore(driver=dr,
                       context=context,
-                      path="CGS_COS_Switch_Shell_2G-running-290819-173158",
+                      path="CGS_COS_Switch_Shell_2G-running-020919-153008",
                       configuration_type="running",
                       restore_method="override",
                       vrf_management_name="")
-
+        #
         # print load_firmware(driver=dr,
         #                     context=context,
         #                     path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106")
