@@ -1,7 +1,7 @@
 from collections import Mapping
 
-from cgs.helpers.errors import ParseFilterError
-from cgs.helpers.errors import UnsupportedPortsInFilterError
+from cgs.errors import ParseFilterError
+from cgs.errors import UnsupportedPortsInFilterError
 
 
 class ParseTableError(Exception):

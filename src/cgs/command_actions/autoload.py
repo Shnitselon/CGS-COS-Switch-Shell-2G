@@ -3,7 +3,7 @@ import re
 from cloudshell.cli.command_template.command_template_executor import CommandTemplateExecutor
 
 from cgs.command_templates import autoload
-from cgs.helpers.errors import UnsupportedPortsInFilterError
+from cgs.errors import UnsupportedPortsInFilterError
 from cgs.helpers.table2dicts import ConsoleTable
 
 

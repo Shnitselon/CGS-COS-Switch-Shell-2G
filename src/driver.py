@@ -585,8 +585,8 @@ if __name__ == "__main__":
                                                   "connectorAttributes": [],
                                                   "actionId": "22ec7879-e996-4f9a-83ab-bf24f1107281_085a8f57-d09d-4f92-9201-0da098d14c06",
                                                   "actionTarget": {
-                                                      "fullName": "CGS/Chassis 1/Port 1",
-                                                      "fullAddress": "192.168.105.30/CH1/P1",
+                                                      "fullName": "CGS/1",
+                                                      "fullAddress": "192.168.105.30/P1",
                                                       "type": "actionTarget"},
                                                   "customActionAttributes": [], "type": action}]}}
 
@@ -641,12 +641,12 @@ if __name__ == "__main__":
         #               restore_method="override",
         #               vrf_management_name="")
         # #
-        print restore(driver=dr,
-                      context=context,
-                      path="CGS_COS_Switch_Shell_2G-running-020919-153008",
-                      configuration_type="running",
-                      restore_method="override",
-                      vrf_management_name="")
+        # print restore(driver=dr,
+        #               context=context,
+        #               path="CGS_COS_Switch_Shell_2G-running-020919-153008",
+        #               configuration_type="running",
+        #               restore_method="override",
+        #               vrf_management_name="")
         #
         # print load_firmware(driver=dr,
         #                     context=context,
@@ -656,4 +656,4 @@ if __name__ == "__main__":
         # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
         #
         # # run apply connectivity changes | remove VLAN
-        # print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")
+        print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")

@@ -1,12 +1,11 @@
 from cloudshell.cli.session.session_exceptions import CommandExecutionException
-# from cloudshell.cumulus.linux.command_actions.commit import CommitActions
-# from cloudshell.cumulus.linux.command_actions.vlan import VLANActions
-
 from cloudshell.devices.flows.cli_action_flows import RemoveVlanFlow
+
+from cgs.command_actions.commit import CommitActions
+from cgs.command_actions.vlan import VlanActions
 
 
 class CgsRemoveVlanFlow(RemoveVlanFlow):
-
     @staticmethod
     def _get_port_name(full_port_name):
         """
@@ -28,23 +27,22 @@ class CgsRemoveVlanFlow(RemoveVlanFlow):
         """
         port = self._get_port_name(full_port_name=port_name)
 
-        # with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as cli_service:
-        #     vlan_actions = VLANActions(cli_service=cli_service, logger=self._logger)
-        #     commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
-        #
-        #     try:
-        #         output = vlan_actions.remove_port_from_bridge(port=port)
-        #
-        #         if port_mode == "trunk":
-        #             output += vlan_actions.remove_trunk_vlan_on_port(port=port)
-        #         else:
-        #             output += vlan_actions.remove_access_vlan_on_port(port=port)
-        #
-        #         output += commit_actions.commit()
-        #
-        #     except CommandExecutionException:
-        #         self._logger.exception("Failed to remove VLAN:")
-        #         commit_actions.abort()
-        #         raise
-        #
-        # return output
+        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as cli_service:
+            vlan_actions = VlanActions(cli_service=cli_service, logger=self._logger)
+            commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
+
+            try:
+                if port_mode == "trunk":
+                    # todo: show filters command should be triggered in the ENABLE mode !!!
+                    output = vlan_actions.remove_trunk_vlan_filter(port=port, vlan_range=vlan_range)
+                else:
+                    output = vlan_actions.remove_access_vlan_filter(port=port, vlan=vlan_range)
+
+                output += commit_actions.commit()
+
+            except CommandExecutionException:
+                self._logger.exception("Failed to remove VLAN:")
+                commit_actions.abort()
+                raise
+
+        return output
