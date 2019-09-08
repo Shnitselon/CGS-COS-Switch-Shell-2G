@@ -47,4 +47,4 @@ class CgsAddVlanFlow(AddVlanFlow):
                 commit_actions.abort()
                 raise
 
-        return output
+            return output

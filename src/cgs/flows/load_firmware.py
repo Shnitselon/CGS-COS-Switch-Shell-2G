@@ -14,6 +14,29 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         :return:
         """
         """
+NPB-I# show system sw-upgrade
+Software
+=============================================
+Next System Boot            Bank A
+
+Running Image               Bank A
+Software Version            2.6.0
+Filename                    NPB-I-x86-2.6.0.bin.tar
+
+Alternate Image             Bank B
+Software Version            2.7.0
+Filename                    NPB-I-x86-2.7.0.bin.tar
+Status                      Valid
+
+Last Error Message          Not existing path
+
+User
+Password
+File                        file:///var/cgs/cgifiles/NPB-I-x86-2.6.0.bin.tar
+NPB-I#
+        """
+
+        """
         admin https (webui from 172.16.10.49) on since 2019-08-29 15:06:58 terminal mode
         NPB-I(config)# system sw-upgrade 
         Possible completions:
@@ -25,6 +48,8 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
           username    The username to be used when accessing the download server
 
         """
+
+        "system tools ping"
         # with self._cli_handler.get_cli_service(self._cli_handler.root_mode) as cli_service:
         #     system_actions = SystemActions(cli_service=cli_service, logger=self._logger)
         #     firmware_actions = FirmwareActions(cli_service=cli_service, logger=self._logger)

@@ -650,7 +650,7 @@ if __name__ == "__main__":
         #
         # print load_firmware(driver=dr,
         #                     context=context,
-        #                     path="ftp://test_user:test_password@192.168.42.102/Switch-running-240419-180106")
+        #                     path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.18/TESTING_FIRMWARE.bin.tar")
 
         # # run apply connectivity changes | set VLAN
         # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")

@@ -26,7 +26,6 @@ class EnableCommandMode(CommandMode):
 
 
 class ConfigCommandMode(CommandMode):
-    # todo: verify prompt for config, config-snmp, config-snmp-testuserv3, etc
     PROMPT = r"{}\S+\(config.*\)#\s*$".format(BEGIN_LINE_PATTERN)
     ENTER_COMMAND = "config"
     EXIT_COMMAND = "exit"

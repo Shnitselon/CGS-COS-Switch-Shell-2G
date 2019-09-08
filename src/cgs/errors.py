@@ -20,3 +20,7 @@ class PortsNotConnectedError(BaseL1Error):
 
 class PortsNotDeletedError(BaseL1Error):
     """Some ports didn't deleted"""
+
+
+class FilterDoesNotExist(CgsBaseError):
+    """Unable to find Filter"""

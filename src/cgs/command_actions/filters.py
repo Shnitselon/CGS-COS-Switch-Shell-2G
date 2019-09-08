@@ -17,13 +17,17 @@ class FiltersActions(object):
         self._cli_service = cli_service
         self._logger = logger
 
-    def get_filters(self):
+    def get_filters(self, action_map=None, error_map=None):
         """
 
+        :param action_map:
+        :param error_map:
         :rtype: Filters
         """
         connections = CommandTemplateExecutor(cli_service=self._cli_service,
                                               command_template=filters.SHOW_FILTERS,
+                                              action_map=action_map,
+                                              error_map=error_map,
                                               remove_prompt=True).execute_command()
 
         return Filters(self._logger, connections)

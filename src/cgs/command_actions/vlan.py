@@ -5,7 +5,10 @@ from cgs.command_templates import vlan as vlan_tmpl
 
 
 class VlanActions(FiltersActions):
+
     VLAN_FILTER_NAME_TPL = "vlan-{}"
+    TRUNK_VLAN_CLASSIFIER = "l2"
+    ACCESS_VLAN_PACKET_PROCESSING = "vlan-outer"
 
     def __init__(self, cli_service, logger):
         """
@@ -52,7 +55,7 @@ class VlanActions(FiltersActions):
                                                  vlan_range=vlan_range,
                                                  port=port)
 
-    def remove_access_vlan_filter(self, vlan, port, action_map=None, error_map=None):
+    def get_access_vlan_filters_id(self, vlan, port, action_map=None, error_map=None):
         """
 
         :param vlan:
@@ -61,17 +64,13 @@ class VlanActions(FiltersActions):
         :param error_map:
         :return:
         """
-        filter_ids = self.get_filters().find_filters_by_fields(name=self.VLAN_FILTER_NAME_TPL.format(vlan),
-                                                               input_port=port,
-                                                               classifiers="",
-                                                               packet_processing="vlan-outer")
-        if not filter_ids:
-            # todo: raise CGS Exception
-            raise Exception("Unable to find filter for port {} VLAN {} in the Access mode".format(port, vlan))
+        return self.get_filters(action_map=action_map, error_map=error_map).find_filters_by_fields(
+            name=self.VLAN_FILTER_NAME_TPL.format(vlan),
+            input_port=port,
+            classifiers="",
+            packet_processing=self.ACCESS_VLAN_PACKET_PROCESSING)
 
-        return self.remove_filters(filter_ids=filter_ids, action_map=action_map, error_map=error_map)
-
-    def remove_trunk_vlan_filter(self, vlan_range, port, action_map=None, error_map=None):
+    def get_trunk_vlan_filters_id(self, vlan_range, port, action_map=None, error_map=None):
         """
 
         :param vlan_range:
@@ -80,12 +79,8 @@ class VlanActions(FiltersActions):
         :param error_map:
         :return:
         """
-        filter_ids = self.get_filters().find_filters_by_fields(name=self.VLAN_FILTER_NAME_TPL.format(vlan_range),
-                                                               input_port=port,
-                                                               classifiers="l2",
-                                                               packet_processing="")
-        if not filter_ids:
-            # todo: raise CGS Exception
-            raise Exception("Unable to find filter for port {} VLAN(s) {} in the Trunk mode".format(port, vlan_range))
-
-        return self.remove_filters(filter_ids=filter_ids, action_map=action_map, error_map=error_map)
+        return self.get_filters(action_map=action_map, error_map=error_map).find_filters_by_fields(
+            name=self.VLAN_FILTER_NAME_TPL.format(vlan_range),
+            input_port=port,
+            classifiers=self.TRUNK_VLAN_CLASSIFIER,
+            packet_processing="")

@@ -3,6 +3,7 @@ from cloudshell.devices.flows.cli_action_flows import RemoveVlanFlow
 
 from cgs.command_actions.commit import CommitActions
 from cgs.command_actions.vlan import VlanActions
+from cgs.errors import FilterDoesNotExist
 
 
 class CgsRemoveVlanFlow(RemoveVlanFlow):
@@ -27,22 +28,31 @@ class CgsRemoveVlanFlow(RemoveVlanFlow):
         """
         port = self._get_port_name(full_port_name=port_name)
 
-        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as cli_service:
-            vlan_actions = VlanActions(cli_service=cli_service, logger=self._logger)
-            commit_actions = CommitActions(cli_service=cli_service, logger=self._logger)
+        with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as enable_session:
+            vlan_actions = VlanActions(cli_service=enable_session, logger=self._logger)
+            commit_actions = CommitActions(cli_service=enable_session, logger=self._logger)
 
-            try:
-                if port_mode == "trunk":
-                    # todo: show filters command should be triggered in the ENABLE mode !!!
-                    output = vlan_actions.remove_trunk_vlan_filter(port=port, vlan_range=vlan_range)
-                else:
-                    output = vlan_actions.remove_access_vlan_filter(port=port, vlan=vlan_range)
+            if port_mode == "trunk":
+                filter_ids = vlan_actions.get_trunk_vlan_filters_id(port=port,
+                                                                    vlan_range=vlan_range,
+                                                                    action_map=action_map,
+                                                                    error_map=error_map)
+            else:
+                filter_ids = vlan_actions.get_access_vlan_filters_id(port=port,
+                                                                     vlan=vlan_range,
+                                                                     action_map=action_map,
+                                                                     error_map=error_map)
 
-                output += commit_actions.commit()
+            if not filter_ids:
+                raise FilterDoesNotExist("Unable to find filter for port {} VLAN {}".format(port, vlan_range))
 
-            except CommandExecutionException:
-                self._logger.exception("Failed to remove VLAN:")
-                commit_actions.abort()
-                raise
+            with enable_session.enter_mode(self._cli_handler.config_mode):
+                try:
+                    vlan_actions.remove_filters(filter_ids=filter_ids)
+                    output = commit_actions.commit()
+                except CommandExecutionException:
+                    self._logger.exception("Failed to remove VLAN:")
+                    commit_actions.abort()
+                    raise
 
-        return output
+                return output
