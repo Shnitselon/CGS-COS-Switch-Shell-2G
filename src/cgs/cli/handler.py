@@ -25,3 +25,14 @@ class CgsCliHandler(CliHandlerImpl):
         :rtype: ConfigCommandMode
         """
         return self.modes[ConfigCommandMode]
+
+    def on_session_start(self, session, logger):
+        """Perform some default commands when session just opened (like 'no logging console')
+
+        :param session:
+        :param logger:
+        :return:
+        """
+        session.send_line("config", logger)
+        session.send_line("system cli session paginate false", logger)
+        session.send_line("commit", logger)

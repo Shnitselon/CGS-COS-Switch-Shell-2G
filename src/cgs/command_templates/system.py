@@ -5,8 +5,6 @@ from cloudshell.cli.command_template.command_template import CommandTemplate
 
 ERROR_MAP = OrderedDict([("[Ee]rror:", "An error occurred while executing a CLI command")])
 
-DISABLE_PAGINATION = CommandTemplate("system cli session paginate false")
-
 EXPORT_CONFIG_FILE_ANONYMOUS = CommandTemplate(
     "system config-files export local-file {config_file} remote-url {remote_url}",
     action_map=OrderedDict([(r"[Ee]rror:.*[Aa]access [Dd]enied", "Failed uploading file: Access denied")]),
