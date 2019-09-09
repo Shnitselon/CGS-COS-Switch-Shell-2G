@@ -1,3 +1,5 @@
+import re
+
 from cloudshell.cli.session.session_exceptions import CommandExecutionException
 from cloudshell.devices.flows.cli_action_flows import RemoveVlanFlow
 
@@ -14,7 +16,7 @@ class CgsRemoveVlanFlow(RemoveVlanFlow):
         :param full_port_name:
         :return:
         """
-        return full_port_name.split("/")[-1]
+        return re.sub("[^0-9]", "", full_port_name.split("/")[-1])
 
     def execute_flow(self, vlan_range, port_name, port_mode, action_map=None, error_map=None):
         """

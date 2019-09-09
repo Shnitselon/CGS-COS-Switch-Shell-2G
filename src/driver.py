@@ -390,7 +390,7 @@ if __name__ == "__main__":
         """
         """Return initialized driver instance"""
         context = ResourceCommandContext(*(None,) * 4)
-        context.resource = ResourceContextDetails(*(None,) * 10)
+        context.resource = ResourceContextDetails(*(None,) * 13)
         context.resource.name = "CGS COS Switch Shell 2G"
         context.resource.fullname = "CGS COS Switch Shell 2G"
         context.resource.address = address
@@ -413,23 +413,23 @@ if __name__ == "__main__":
                             ("Backup Password", "backup_pass"),
 
                             # SNMP v2 Read-only
-                            # ("SNMP Version", "2"),
-                            # ("Enable SNMP", "True"),
-                            # ("Disable SNMP", "True"),
-                            # ("SNMP Read Community", "mynotsosecretpassword"),
+                            ("SNMP Version", "2"),
+                            ("Enable SNMP", "False"),
+                            ("Disable SNMP", "False"),
+                            ("SNMP Read Community", "public"),
                             # End SNMP v2 Read-only
 
                             # SNMP v2 Read-Write
                             # ("SNMP Version", "2"),
                             # ("Enable SNMP", "True"),
-                            # ("Disable SNMP", "True"),
+                            # ("Disable SNMP", "False"),
                             # ("SNMP Write Community", "public_33"),
                             # End SNMP v2 Read-Write
 
                             # SNMP v3
-                            ("SNMP Version", "3"),
-                            ("Enable SNMP", "True"),
-                            ("Disable SNMP", "True"),
+                            # ("SNMP Version", "3"),
+                            # ("Enable SNMP", "True"),
+                            # ("Disable SNMP", "True"),
                             ("SNMP V3 User", "quali_NEW_33"),
                             ("SNMP V3 Password", "qualipass"),
                             ("SNMP V3 Private Key", "qualipass2"),
@@ -585,7 +585,7 @@ if __name__ == "__main__":
                                                   "connectorAttributes": [],
                                                   "actionId": "22ec7879-e996-4f9a-83ab-bf24f1107281_085a8f57-d09d-4f92-9201-0da098d14c06",
                                                   "actionTarget": {
-                                                      "fullName": "CGS/1",
+                                                      "fullName": "CGS/Port 1",
                                                       "fullAddress": "192.168.105.30/P1",
                                                       "type": "actionTarget"},
                                                   "customActionAttributes": [], "type": action}]}}
@@ -601,7 +601,7 @@ if __name__ == "__main__":
         get_api.return_value.DecryptPassword = lambda x: mock.MagicMock(Value=x)
 
         # get inventory
-        # print get_inventory(driver=dr, context=context)
+        print get_inventory(driver=dr, context=context)
 
         # health check
         # print health_check(driver=dr, context=context)
@@ -621,7 +621,7 @@ if __name__ == "__main__":
         #            folder_path="",
         #            configuration_type="running",
         #            vrf_management_name="")
-
+        #
         # print save(driver=dr,
         #            context=context,
         #            folder_path="scp://quali:quali@192.168.85.13/home/quali",
@@ -656,4 +656,4 @@ if __name__ == "__main__":
         # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
         #
         # # run apply connectivity changes | remove VLAN
-        print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")
+        # print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")
