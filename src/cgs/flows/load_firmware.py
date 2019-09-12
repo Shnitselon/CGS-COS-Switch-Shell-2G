@@ -1,7 +1,11 @@
-# from cgs.command_actions.firmware import FirmwareActions
-# from cgs.command_actions.system import SystemActions
+import re
 
+from cloudshell.cli.session.session_exceptions import CommandExecutionException
 from cloudshell.devices.flows.cli_action_flows import LoadFirmwareFlow
+from cloudshell.devices.networking_utils import UrlParser
+
+from cgs.command_actions.firmware import FirmwareActions
+from cgs.command_actions.commit import CommitActions
 
 
 class CgsLoadFirmwareFlow(LoadFirmwareFlow):
@@ -13,56 +17,58 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         :param timeout:
         :return:
         """
-        """
-NPB-I# show system sw-upgrade
-Software
-=============================================
-Next System Boot            Bank A
-
-Running Image               Bank A
-Software Version            2.6.0
-Filename                    NPB-I-x86-2.6.0.bin.tar
-
-Alternate Image             Bank B
-Software Version            2.7.0
-Filename                    NPB-I-x86-2.7.0.bin.tar
-Status                      Valid
-
-Last Error Message          Not existing path
-
-User
-Password
-File                        file:///var/cgs/cgifiles/NPB-I-x86-2.6.0.bin.tar
-NPB-I#
-        """
+        url = UrlParser.parse_url(path)
 
         """
-        admin https (webui from 172.16.10.49) on since 2019-08-29 15:06:58 terminal mode
-        NPB-I(config)# system sw-upgrade 
-        Possible completions:
-          boot-bank   The bank the device will boot from on next reboot
-          file-name   The file name to download in URI syntax; protocol://path, for example: http://127.0.0.1:80/filename.bin.tar
-          password    The password to be used when accessing the download server
-          start       Start software upgrade now
-          stop        Stop software upgrade now
-          username    The username to be used when accessing the download server
-
+        NPB-I# show system sw-upgrade 
+        Software
+        =============================================
+        Next System Boot            Bank A 
+        
+        Running Image               Bank A
+        Software Version            2.6.0
+        Filename                    NPB-I-x86-2.6.0.bin.tar
+        
+        Alternate Image             Bank B
+        Software Version            2.6.1
+        Filename                    NPB-II-x86-2.6.1.bin.tar
+        Status                      Corrupted
+        
+        Last Error Message          Failed burn image to disk
+        
+        User                        cgs
+        Password                    
+        File                        ftp://cgs@192.168.201.100/NPB-II-x86-2.6.1.bin.tar
+        NPB-I# 
+        
         """
 
-        "system tools ping"
-        # with self._cli_handler.get_cli_service(self._cli_handler.root_mode) as cli_service:
-        #     system_actions = SystemActions(cli_service=cli_service, logger=self._logger)
-        #     firmware_actions = FirmwareActions(cli_service=cli_service, logger=self._logger)
-        #
-        #     self._logger.info("Loading firmware: {}".format(path))
-        #     output = firmware_actions.load_firmware(image_path=path, timeout=timeout)
-        #
-        #     try:
-        #         self._logger.info("Rebooting device...")
-        #         output += system_actions.reboot()
-        #     except Exception:
-        #         self._logger.debug("Reboot session exception:", exc_info=True)
-        #
-        #     self._logger.info("Reconnecting session...")
-        #     cli_service.reconnect(timeout)
-        #     return output
+        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
+            commit_actions = CommitActions(cli_service=config_session, logger=self._logger)
+            firmware_actions = FirmwareActions(cli_service=config_session, logger=self._logger)
+
+            try:
+                firmware_actions.set_remote_firmware_file(remote_url=path)
+                firmware_actions.set_remote_firmware_user(user=url.get(UrlParser.USERNAME))
+                firmware_actions.set_remote_firmware_password(password=url.get(UrlParser.PASSWORD))
+                commit_actions.commit()
+
+            except CommandExecutionException:
+                self._logger.exception("Failed to set remote firmware file:")
+                commit_actions.abort()
+                raise
+
+            firmware_actions.start_sw_upgrade()
+            sw_info = firmware_actions.show_sw_upgrade_info()
+
+            sw_info_status = re.search(r"[Ss]tatus\s+(?P<status>.*)\n", sw_info).group("status")
+
+            # todo: find correct bank block first !!!
+
+            sw_details = re.search(r"[Aa]lternate\s+[Ii]mage\s+(?P<bank>.*)\n.*"
+                                   r"[Ff]ilename\s+NPB-II-x86-2.6.1.bin.tar\n"
+                                   r"[Ss]tatus\s+(?P<status>.*)\n.*",
+                                   sw_info)
+
+            import ipdb;ipdb.set_trace()
+            pass

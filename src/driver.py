@@ -601,7 +601,7 @@ if __name__ == "__main__":
         get_api.return_value.DecryptPassword = lambda x: mock.MagicMock(Value=x)
 
         # get inventory
-        print get_inventory(driver=dr, context=context)
+        # print get_inventory(driver=dr, context=context)
 
         # health check
         # print health_check(driver=dr, context=context)
@@ -648,9 +648,9 @@ if __name__ == "__main__":
         #               restore_method="override",
         #               vrf_management_name="")
         #
-        # print load_firmware(driver=dr,
-        #                     context=context,
-        #                     path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.18/TESTING_FIRMWARE.bin.tar")
+        print load_firmware(driver=dr,
+                            context=context,
+                            path="ftp://cgs@192.168.201.100/NPB-II-x86-2.6.1.bin.tar")
 
         # # run apply connectivity changes | set VLAN
         # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
