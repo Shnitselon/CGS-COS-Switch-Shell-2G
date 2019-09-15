@@ -1,3 +1,5 @@
+import re
+
 from cloudshell.cli.command_template.command_template_executor import CommandTemplateExecutor
 
 from cgs.command_templates import firmware
@@ -80,31 +82,62 @@ class FirmwareActions(object):
                                        action_map=action_map,
                                        error_map=error_map).execute_command()
 
-    def show_sw_upgrade_info(self, action_map=None, error_map=None):
+    def get_last_error_msg(self, action_map=None, error_map=None):
         """
 
+        :return:
+        """
+        output = CommandTemplateExecutor(cli_service=self._cli_service,
+                                         command_template=firmware.SHOW_SW_UPGRADE_INFO,
+                                         action_map=action_map,
+                                         error_map=error_map).execute_command()
+
+        sw_details = re.search(r"[Ll]ast\s[Ee]rror\s+[Mm]essage\s+(?P<error_msg>.*)", output)
+
+        if sw_details:
+            return sw_details.group("error_msg")
+
+    def get_sw_upgrade_file_status(self, file_name, action_map=None, error_map=None):
+        """
+
+        :param file_name:
         :param action_map:
         :param error_map:
         :return:
         """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=firmware.SHOW_SW_UPGRADE_INFO,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command()
 
+        output = CommandTemplateExecutor(cli_service=self._cli_service,
+                                         command_template=firmware.SHOW_SW_UPGRADE_INFO,
+                                         action_map=action_map,
+                                         error_map=error_map).execute_command()
 
-    # sw_details = re.search(r"[Ss]tatus\s+(?P<status>.*)\n"
-    #                        r"[Ll]ast\s+[Ee]rror\s+[Mm]essage\s+(?P<error_msg>.*)\n",
-    #                        sw_info
+        sw_details = re.search(r"[Aa]lternate\s+[Ii]mage\s+(?P<bank>.*)\s+"
+                               r"[Ss]oftware\s+[Vv]ersion\s+(?P<sw_version>.*)\s+"
+                               r"[Ff]ilename\s+{}\s+".format(file_name) +
+                               r"[Ss]tatus\s+(?P<status>.*)\s+", output)
 
-    def show_sw_upgrade_info(self, action_map=None, error_map=None):
+        return sw_details.group("status") if sw_details else ""
+
+    def get_sw_upgrade_file_boot_bank(self, file_name, action_map=None, error_map=None):
         """
 
+        :param file_name:
         :param action_map:
         :param error_map:
         :return:
         """
-        return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=firmware.SHOW_SW_UPGRADE_INFO,
-                                       action_map=action_map,
-                                       error_map=error_map).execute_command()
+
+        output = CommandTemplateExecutor(cli_service=self._cli_service,
+                                         command_template=firmware.SHOW_SW_UPGRADE_INFO,
+                                         action_map=action_map,
+                                         error_map=error_map).execute_command()
+
+        sw_details = re.search(r"[Aa]lternate\s+[Ii]mage\s+(?P<bank>.*)\s+"
+                               r"[Ss]oftware\s+[Vv]ersion\s+(?P<sw_version>.*)\s+"
+                               r"[Ff]ilename\s+{}\s+".format(file_name) +
+                               r"[Ss]tatus\s+(?P<status>.*)\s+", output)
+
+        return sw_details.group("bank")
+
+    def set_remote_firmware_boot_bank(self, boot_bank, action_map=None, error_map=None):
+        pass

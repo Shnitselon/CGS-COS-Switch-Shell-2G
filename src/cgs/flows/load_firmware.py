@@ -1,3 +1,6 @@
+from datetime import datetime
+from datetime import timedelta
+import time
 import re
 
 from cloudshell.cli.session.session_exceptions import CommandExecutionException
@@ -9,6 +12,10 @@ from cgs.command_actions.commit import CommitActions
 
 
 class CgsLoadFirmwareFlow(LoadFirmwareFlow):
+    IMAGE_VALIDATION_WAITING_TIMEOUT = 5 * 60
+    IMAGE_VALIDATION_WAITING_INTERVAL = 5
+    IMAGE_VALIDATION_SUCCESS_STATE = "Valid"
+
     def execute_flow(self, path, vrf, timeout):
         """
 
@@ -18,30 +25,9 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         :return:
         """
         url = UrlParser.parse_url(path)
+        import ipdb;ipdb.set_trace()
 
-        """
-        NPB-I# show system sw-upgrade 
-        Software
-        =============================================
-        Next System Boot            Bank A 
-        
-        Running Image               Bank A
-        Software Version            2.6.0
-        Filename                    NPB-I-x86-2.6.0.bin.tar
-        
-        Alternate Image             Bank B
-        Software Version            2.6.1
-        Filename                    NPB-II-x86-2.6.1.bin.tar
-        Status                      Corrupted
-        
-        Last Error Message          Failed burn image to disk
-        
-        User                        cgs
-        Password                    
-        File                        ftp://cgs@192.168.201.100/NPB-II-x86-2.6.1.bin.tar
-        NPB-I# 
-        
-        """
+        file_name = "!" * 100
 
         with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
             commit_actions = CommitActions(cli_service=config_session, logger=self._logger)
@@ -59,16 +45,49 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
                 raise
 
             firmware_actions.start_sw_upgrade()
-            sw_info = firmware_actions.show_sw_upgrade_info()
+            self._wait_for_image_validation(firmware_actions, file_name)
+            boot_bank = firmware_actions.get_sw_upgrade_file_boot_bank(file_name=file_name)
+            boot_bank = self._convert_boot_bank(boot_bank=boot_bank)
 
-            sw_info_status = re.search(r"[Ss]tatus\s+(?P<status>.*)\n", sw_info).group("status")
+            try:
+                firmware_actions.set_remote_firmware_boot_bank(boot_bank=boot_bank)
+                commit_actions.commit()
 
-            # todo: find correct bank block first !!!
+            except CommandExecutionException:
+                self._logger.exception("Failed to set remote firmware file boot bank:")
+                commit_actions.abort()
+                raise
 
-            sw_details = re.search(r"[Aa]lternate\s+[Ii]mage\s+(?P<bank>.*)\n.*"
-                                   r"[Ff]ilename\s+NPB-II-x86-2.6.1.bin.tar\n"
-                                   r"[Ss]tatus\s+(?P<status>.*)\n.*",
-                                   sw_info)
+            # todo: reboot????
 
-            import ipdb;ipdb.set_trace()
-            pass
+    def _convert_boot_bank(self, boot_bank):
+        """
+
+        :param boot_bank:
+        :return:
+        """
+        return boot_bank
+
+    def _wait_for_image_validation(self, firmware_actions, file_name):
+        """
+
+        :param firmware_actions:
+        :param file_name:
+        :return:
+        """
+        timeout_time = datetime.now() + timedelta(seconds=self.IMAGE_VALIDATION_WAITING_TIMEOUT)
+        status = ""
+
+        while status == self.IMAGE_VALIDATION_SUCCESS_STATE.lower():
+            error_msg = firmware_actions.get_last_error_msg()
+
+            if error_msg:
+                raise Exception("Unable to validate firmware file. {}".format(error_msg))
+
+            status = firmware_actions.get_sw_upgrade_file_status(file_name=file_name)
+
+            self._logger.info("Firmawe image status is '{}'. Waiting...".format(status))
+            time.sleep(self.IMAGE_VALIDATION_WAITING_INTERVAL)
+
+            if datetime.now() > timeout_time:
+                raise Exception("Unable to check firmware file state")
