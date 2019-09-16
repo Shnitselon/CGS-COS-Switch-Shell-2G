@@ -92,7 +92,7 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         timeout_time = datetime.now() + timedelta(seconds=self.IMAGE_VALIDATION_WAITING_TIMEOUT)
         status = ""
 
-        while status != self.IMAGE_VALIDATION_SUCCESS_STATE.lower():
+        while status.lower() != self.IMAGE_VALIDATION_SUCCESS_STATE.lower():
             error_msg = firmware_actions.get_last_error_msg()
 
             if error_msg:
