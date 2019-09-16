@@ -140,4 +140,26 @@ class FirmwareActions(object):
         return sw_details.group("bank")
 
     def set_remote_firmware_boot_bank(self, boot_bank, action_map=None, error_map=None):
-        pass
+        """
+
+        :param boot_bank:
+        :param action_map:
+        :param error_map:
+        :return:
+        """
+        return CommandTemplateExecutor(cli_service=self._cli_service,
+                                       command_template=firmware.SET_REMOTE_FIRMWARE_BOOT_BANK,
+                                       action_map=action_map,
+                                       error_map=error_map).execute_command(boot_bank=boot_bank)
+
+    def system_reboot(self, action_map=None, error_map=None):
+        """
+
+        :param action_map:
+        :param error_map:
+        :return:
+        """
+        return CommandTemplateExecutor(cli_service=self._cli_service,
+                                       command_template=firmware.SYSTEM_REBOOT,
+                                       action_map=action_map,
+                                       error_map=error_map).execute_command()

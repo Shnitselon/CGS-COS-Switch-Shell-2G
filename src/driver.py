@@ -652,6 +652,10 @@ if __name__ == "__main__":
                             context=context,
                             path="ftp://cgs@192.168.201.100/NPB-II-x86-2.6.1.bin.tar")
 
+        # print load_firmware(driver=dr,
+        #                     context=context,
+        #                     path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185/CGS_COS_Switch_Shell_2G-running-020919-151037")
+
         # # run apply connectivity changes | set VLAN
         # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
         #

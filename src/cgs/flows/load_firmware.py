@@ -1,7 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
 import time
-import re
 
 from cloudshell.cli.session.session_exceptions import CommandExecutionException
 from cloudshell.devices.flows.cli_action_flows import LoadFirmwareFlow
@@ -16,6 +15,24 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
     IMAGE_VALIDATION_WAITING_INTERVAL = 5
     IMAGE_VALIDATION_SUCCESS_STATE = "Valid"
 
+    @staticmethod
+    def _convert_boot_bank(boot_bank):
+        """
+
+        :param boot_bank:
+        :return:
+        """
+        return boot_bank.lower().replace(" ", "-")
+
+    @staticmethod
+    def _get_firmware_file_name(path):
+        """
+
+        :param path:
+        :return:
+        """
+        return path.split("/")[-1]
+
     def execute_flow(self, path, vrf, timeout):
         """
 
@@ -25,9 +42,7 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         :return:
         """
         url = UrlParser.parse_url(path)
-        import ipdb;ipdb.set_trace()
-
-        file_name = "!" * 100
+        file_name = self._get_firmware_file_name(path)
 
         with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
             commit_actions = CommitActions(cli_service=config_session, logger=self._logger)
@@ -58,15 +73,14 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
                 commit_actions.abort()
                 raise
 
-            # todo: reboot????
+            try:
+                self._logger.info("Rebooting device...")
+                firmware_actions.system_reboot()
+            except Exception:
+                self._logger.debug("Reboot session exception:", exc_info=True)
 
-    def _convert_boot_bank(self, boot_bank):
-        """
-
-        :param boot_bank:
-        :return:
-        """
-        return boot_bank
+            self._logger.info("Reconnecting session...")
+            config_session.reconnect(timeout)
 
     def _wait_for_image_validation(self, firmware_actions, file_name):
         """
@@ -78,7 +92,7 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         timeout_time = datetime.now() + timedelta(seconds=self.IMAGE_VALIDATION_WAITING_TIMEOUT)
         status = ""
 
-        while status == self.IMAGE_VALIDATION_SUCCESS_STATE.lower():
+        while status != self.IMAGE_VALIDATION_SUCCESS_STATE.lower():
             error_msg = firmware_actions.get_last_error_msg()
 
             if error_msg:
