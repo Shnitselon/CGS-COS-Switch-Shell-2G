@@ -1,9 +1,9 @@
 from cloudshell.cli.command_template.command_template_executor import CommandTemplateExecutor
 
-from cgs.command_templates import system
+from cgs.command_templates import save_restore
 
 
-class SystemActions(object):
+class SaveRestoreActions(object):
     def __init__(self, cli_service, logger):
         """
 
@@ -22,7 +22,7 @@ class SystemActions(object):
         :return:
         """
         return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=system.SAVE_LOCAL_CONFIG_FILE,
+                                       command_template=save_restore.SAVE_LOCAL_CONFIG_FILE,
                                        action_map=action_map,
                                        error_map=error_map).execute_command(config_file=config_file)
 
@@ -35,7 +35,7 @@ class SystemActions(object):
         :return:
         """
         return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=system.LOAD_LOCAL_CONFIG_FILE,
+                                       command_template=save_restore.LOAD_LOCAL_CONFIG_FILE,
                                        action_map=action_map,
                                        error_map=error_map).execute_command(config_file=config_file)
 
@@ -54,9 +54,9 @@ class SystemActions(object):
 
         if user:
             command_kwargs.update({"user": user, "password": password})
-            command_template = system.EXPORT_CONFIG_FILE
+            command_template = save_restore.EXPORT_CONFIG_FILE
         else:
-            command_template = system.EXPORT_CONFIG_FILE_ANONYMOUS
+            command_template = save_restore.EXPORT_CONFIG_FILE_ANONYMOUS
 
         return CommandTemplateExecutor(cli_service=self._cli_service,
                                        command_template=command_template,
@@ -78,9 +78,9 @@ class SystemActions(object):
 
         if user:
             command_kwargs.update({"user": user, "password": password})
-            command_template = system.IMPORT_CONFIG_FILE
+            command_template = save_restore.IMPORT_CONFIG_FILE
         else:
-            command_template = system.IMPORT_CONFIG_FILE_ANONYMOUS
+            command_template = save_restore.IMPORT_CONFIG_FILE_ANONYMOUS
 
         return CommandTemplateExecutor(cli_service=self._cli_service,
                                        command_template=command_template,
@@ -96,6 +96,6 @@ class SystemActions(object):
         :return:
         """
         return CommandTemplateExecutor(cli_service=self._cli_service,
-                                       command_template=system.DELETE_LOCAL_CONFIG_FILE,
+                                       command_template=save_restore.DELETE_LOCAL_CONFIG_FILE,
                                        action_map=action_map,
                                        error_map=error_map).execute_command(config_file=config_file)
