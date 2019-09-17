@@ -26,7 +26,7 @@ class CgsDisableSnmpFlow(DisableSnmpFlow):
         :param cloudshell.snmp.snmp_parameters.SNMPParameters snmp_parameters:
         :return: commands output
         """
-        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as cli_service:
+        with self._cli_handler.get_cli_service(self._cli_handler.snmp_config_mode) as cli_service:
             if isinstance(snmp_parameters, SNMPV3Parameters):
                 disable_snmp = self._disable_snmp_v3
             else:

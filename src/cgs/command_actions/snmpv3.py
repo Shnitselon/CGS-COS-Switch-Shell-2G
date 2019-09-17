@@ -41,11 +41,10 @@ class SnmpV3Actions(object):
                                        action_map=action_map,
                                        error_map=error_map).execute_command()
 
-    def add_snmp_user(self, snmp_user, snmp_password, snmp_priv_key, snmp_auth_proto, snmp_priv_proto,
-                      action_map=None, error_map=None):
+    def add_snmp_user_auth_and_priv(self, snmp_password, snmp_priv_key, snmp_auth_proto, snmp_priv_proto,
+                                    action_map=None, error_map=None):
         """
 
-        :param snmp_user:
         :param snmp_password:
         :param snmp_priv_key:
         :param snmp_auth_proto:
@@ -65,17 +64,16 @@ class SnmpV3Actions(object):
             raise Exception("Privacy Protocol {} is not supported".format(snmp_priv_proto))
 
         output = CommandTemplateExecutor(cli_service=self._cli_service,
-                                         command_template=snmpv3.ADD_SNMP_USER,
+                                         command_template=snmpv3.SET_DEFAULT_AUTH_AND_PRIV,
                                          action_map=action_map,
-                                         error_map=error_map).execute_command(snmp_user=snmp_user)
+                                         error_map=error_map).execute_command()
 
         if snmp_auth_proto != SNMPV3Parameters.AUTH_NO_AUTH:
             output += CommandTemplateExecutor(
                 cli_service=self._cli_service,
                 command_template=snmpv3.ADD_SNMP_USER_AUTH,
                 action_map=action_map,
-                error_map=error_map).execute_command(snmp_user=snmp_user,
-                                                     snmp_auth_proto=auth_command_template,
+                error_map=error_map).execute_command(snmp_auth_proto=auth_command_template,
                                                      snmp_password=snmp_password)
 
         if snmp_priv_proto != SNMPV3Parameters.PRIV_NO_PRIV:
@@ -83,8 +81,7 @@ class SnmpV3Actions(object):
                 cli_service=self._cli_service,
                 command_template=snmpv3.ADD_SNMP_USER_PRIV,
                 action_map=action_map,
-                error_map=error_map).execute_command(snmp_user=snmp_user,
-                                                     snmp_priv_proto=priv_command_template,
+                error_map=error_map).execute_command(snmp_priv_proto=priv_command_template,
                                                      snmp_priv_key=snmp_priv_key)
 
         return output

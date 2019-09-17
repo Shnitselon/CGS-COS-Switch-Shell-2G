@@ -44,7 +44,7 @@ class CgsLoadFirmwareFlow(LoadFirmwareFlow):
         url = UrlParser.parse_url(path)
         file_name = self._get_firmware_file_name(path)
 
-        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
+        with self._cli_handler.get_cli_service(self._cli_handler.sw_upgrade_config_mode) as config_session:
             commit_actions = CommitActions(cli_service=config_session, logger=self._logger)
             firmware_actions = FirmwareActions(cli_service=config_session, logger=self._logger)
 

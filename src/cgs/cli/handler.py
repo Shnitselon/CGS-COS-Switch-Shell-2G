@@ -3,6 +3,8 @@ from cloudshell.devices.cli_handler_impl import CliHandlerImpl
 
 from cgs.cli.command_modes import EnableCommandMode
 from cgs.cli.command_modes import ConfigCommandMode
+from cgs.cli.command_modes import SNMPConfigCommandMode
+from cgs.cli.command_modes import SwUpgradeConfigCommandMode
 
 
 class CgsCliHandler(CliHandlerImpl):
@@ -25,6 +27,22 @@ class CgsCliHandler(CliHandlerImpl):
         :rtype: ConfigCommandMode
         """
         return self.modes[ConfigCommandMode]
+
+    @property
+    def snmp_config_mode(self):
+        """
+
+        :rtype: SNMPConfigCommandMode
+        """
+        return self.modes[SNMPConfigCommandMode]
+
+    @property
+    def sw_upgrade_config_mode(self):
+        """
+
+        :rtype: SNMPConfigCommandMode
+        """
+        return self.modes[SwUpgradeConfigCommandMode]
 
     def on_session_start(self, session, logger):
         """Perform some default commands when session just opened (like 'no logging console')

@@ -6,21 +6,24 @@ from cloudshell.snmp.snmp_parameters import SNMPV2WriteParameters
 from cgs.command_actions.commit import CommitActions
 from cgs.command_actions.snmpv2 import SnmpV2Actions
 from cgs.command_actions.snmpv3 import SnmpV3Actions
+from cgs.cli.command_modes import SNMPv3UserConfigCommandMode
 
 
 class CgsEnableSnmpFlow(EnableSnmpFlow):
     SNMP_WAITING_TIMEOUT = 5 * 60
     SNMP_WAITING_INTERVAL = 5
 
-    def __init__(self, cli_handler, resource_config, logger):
+    def __init__(self, cli_handler, resource_config, api, logger):
         """
 
         :param cli_handler:
         :param resource_config:
+        :param api:
         :param logger:
         """
         super(CgsEnableSnmpFlow, self).__init__(cli_handler=cli_handler, logger=logger)
         self._resource_config = resource_config
+        self._api = api
 
     def execute_flow(self, snmp_parameters):
         """
@@ -28,7 +31,7 @@ class CgsEnableSnmpFlow(EnableSnmpFlow):
         :param cloudshell.snmp.snmp_parameters.SNMPParameters snmp_parameters:
         :return: commands output
         """
-        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as cli_service:
+        with self._cli_handler.get_cli_service(self._cli_handler.snmp_config_mode) as cli_service:
             if isinstance(snmp_parameters, SNMPV3Parameters):
                 enable_snmp = self._enable_snmp_v3
             else:
@@ -80,12 +83,17 @@ class CgsEnableSnmpFlow(EnableSnmpFlow):
 
         try:
             output = snmp_v3_actions.enable_snmp()
-            output += snmp_v3_actions.add_snmp_user(snmp_user=snmp_parameters.snmp_user,
-                                                    snmp_password=snmp_parameters.snmp_password,
-                                                    snmp_priv_key=snmp_parameters.snmp_private_key,
-                                                    snmp_auth_proto=snmp_parameters.auth_protocol,
-                                                    snmp_priv_proto=snmp_parameters.private_key_protocol)
-            output += commit_actions.commit()
+            with cli_service.enter_mode(SNMPv3UserConfigCommandMode(resource_config=self._resource_config,
+                                                                    api=self._api,
+                                                                    username=snmp_parameters.snmp_user,
+                                                                    parent_mode=cli_service.command_mode)):
+                output += snmp_v3_actions.add_snmp_user_auth_and_priv(
+                    snmp_password=snmp_parameters.snmp_password,
+                    snmp_priv_key=snmp_parameters.snmp_private_key,
+                    snmp_auth_proto=snmp_parameters.auth_protocol,
+                    snmp_priv_proto=snmp_parameters.private_key_protocol)
+
+                output += commit_actions.commit()
 
         except CommandExecutionException:
             commit_actions.abort()

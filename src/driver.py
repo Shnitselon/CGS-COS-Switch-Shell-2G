@@ -384,7 +384,7 @@ if __name__ == "__main__":
     from cloudshell.shell.core.driver_context import ResourceCommandContext, ResourceContextDetails, \
         ReservationContextDetails
 
-    def prepare_context(address="192.168.85.14", user="admin", password="admin", port=8888):
+    def prepare_context(address="192.168.85.14", user="admin", password="admin", port=6666):
         """
         :return:
         """
@@ -414,9 +414,9 @@ if __name__ == "__main__":
 
                             # SNMP v2 Read-only
                             ("SNMP Version", "2"),
-                            ("Enable SNMP", "False"),
-                            ("Disable SNMP", "False"),
-                            ("SNMP Read Community", "public"),
+                            ("Enable SNMP", "True"),
+                            ("Disable SNMP", "True"),
+                            ("SNMP Read Community", "public_testing_2"),
                             # End SNMP v2 Read-only
 
                             # SNMP v2 Read-Write
@@ -430,10 +430,10 @@ if __name__ == "__main__":
                             # ("SNMP Version", "3"),
                             # ("Enable SNMP", "True"),
                             # ("Disable SNMP", "True"),
-                            ("SNMP V3 User", "quali_NEW_33"),
-                            ("SNMP V3 Password", "qualipass"),
-                            ("SNMP V3 Private Key", "qualipass2"),
-                            ("SNMP V3 Authentication Protocol", "No Authentication Protocol"),
+                            # ("SNMP V3 User", "quali_NEW_NEW2"),
+                            # ("SNMP V3 Password", "qualipass"),
+                            # ("SNMP V3 Private Key", "qualipass2"),
+                            # ("SNMP V3 Authentication Protocol", "No Authentication Protocol"),
                             # "No Authentication Protocol", "MD5", "SHA"
                             ("SNMP V3 Privacy Protocol", "No Privacy Protocol"),
                             # "No Privacy Protocol", "DES", "3DES-EDE", "AES-128", "AES-192", "AES-256"
@@ -621,11 +621,11 @@ if __name__ == "__main__":
         #            folder_path="",
         #            configuration_type="running",
         #            vrf_management_name="")
-        #
+
         # print save(driver=dr,
         #            context=context,
         #            folder_path="scp://quali:quali@192.168.85.13/home/quali",
-        #            configuration_type="shalk",
+        #            configuration_type="running",
         #            vrf_management_name="")
         #
         # print save(driver=dr,
@@ -636,7 +636,7 @@ if __name__ == "__main__":
         #
         # print restore(driver=dr,
         #               context=context,
-        #               path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185/CGS_COS_Switch_Shell_2G-running-020919-151037",
+        #               path="ftp://dlpuser@dlptest.com:fLDScD4Ynth0p4OJ6bW6qCxjh@146.66.113.185/CGS-startup-160919-050102",
         #               configuration_type="running",
         #               restore_method="override",
         #               vrf_management_name="")
@@ -648,9 +648,9 @@ if __name__ == "__main__":
         #               restore_method="override",
         #               vrf_management_name="")
         #
-        print load_firmware(driver=dr,
-                            context=context,
-                            path="ftp://cgs@192.168.201.100/NPB-II-x86-2.6.1.bin.tar")
+        # print load_firmware(driver=dr,
+        #                     context=context,
+        #                     path="ftp://cgs@192.168.201.100/NPB-II-x86-2.6.1.bin.tar")
 
         # print load_firmware(driver=dr,
         #                     context=context,
@@ -660,4 +660,4 @@ if __name__ == "__main__":
         # print apply_connectivity_changes(driver=dr, context=context, action="setVlan")
         #
         # # run apply connectivity changes | remove VLAN
-        # print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")
+        print apply_connectivity_changes(driver=dr, context=context, action="removeVlan")

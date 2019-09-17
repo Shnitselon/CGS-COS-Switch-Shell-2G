@@ -30,9 +30,9 @@ class CgsRemoveVlanFlow(RemoveVlanFlow):
         """
         port = self._get_port_name(full_port_name=port_name)
 
-        with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as enable_session:
-            vlan_actions = VlanActions(cli_service=enable_session, logger=self._logger)
-            commit_actions = CommitActions(cli_service=enable_session, logger=self._logger)
+        with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
+            vlan_actions = VlanActions(cli_service=config_session, logger=self._logger)
+            commit_actions = CommitActions(cli_service=config_session, logger=self._logger)
 
             if port_mode == "trunk":
                 filter_ids = vlan_actions.get_trunk_vlan_filters_id(port=port,
@@ -48,13 +48,12 @@ class CgsRemoveVlanFlow(RemoveVlanFlow):
             if not filter_ids:
                 raise FilterDoesNotExist("Unable to find filter for port {} VLAN {}".format(port, vlan_range))
 
-            with enable_session.enter_mode(self._cli_handler.config_mode):
-                try:
-                    vlan_actions.remove_filters(filter_ids=filter_ids)
-                    output = commit_actions.commit()
-                except CommandExecutionException:
-                    self._logger.exception("Failed to remove VLAN:")
-                    commit_actions.abort()
-                    raise
+            try:
+                vlan_actions.remove_filters(filter_ids=filter_ids)
+                output = commit_actions.commit()
+            except CommandExecutionException:
+                self._logger.exception("Failed to remove VLAN:")
+                commit_actions.abort()
+                raise
 
-                return output
+            return output
