@@ -1,12 +1,10 @@
 import re
 
-from cloudshell.cli.command_mode import CommandMode
 from cloudshell.cli.session.session_exceptions import CommandExecutionException
 from cloudshell.devices.flows.cli_action_flows import AddVlanFlow
 
 from cgs.command_actions.commit import CommitActions
 from cgs.command_actions.vlan import VlanActions
-from cgs.cli.command_modes import BEGIN_LINE_PATTERN
 
 
 class CgsAddVlanFlow(AddVlanFlow):
