@@ -1,3 +1,10 @@
+from cloudshell.cgs.snmp.handler import CgsSnmpHandler
+from cloudshell.cgs.cli.handler import CgsCliHandler
+from cloudshell.cgs.runners.autoload import CgsAutoloadRunner
+from cloudshell.cgs.runners.configuration import CgsConfigurationRunner
+from cloudshell.cgs.runners.connectivity import CgsConnectivityRunner
+from cloudshell.cgs.runners.firmware import CgsFirmwareRunner
+from cloudshell.cgs.runners.state import CgsStateRunner
 from cloudshell.core.context.error_handling_context import ErrorHandlingContext
 from cloudshell.devices.driver_helper import get_api
 from cloudshell.devices.driver_helper import get_cli
@@ -8,14 +15,6 @@ from cloudshell.devices.standards.networking.configuration_attributes_structure 
 from cloudshell.devices.runners.run_command_runner import RunCommandRunner
 from cloudshell.shell.core.driver_utils import GlobalLock
 from cloudshell.shell.core.resource_driver_interface import ResourceDriverInterface
-
-from cgs.snmp.handler import CgsSnmpHandler
-from cgs.cli.handler import CgsCliHandler
-from cgs.runners.autoload import CgsAutoloadRunner
-from cgs.runners.configuration import CgsConfigurationRunner
-from cgs.runners.connectivity import CgsConnectivityRunner
-from cgs.runners.firmware import CgsFirmwareRunner
-from cgs.runners.state import CgsStateRunner
 
 
 class CgsCosSwitchShell2GDriver(ResourceDriverInterface, GlobalLock):
