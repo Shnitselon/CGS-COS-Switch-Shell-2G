@@ -39,11 +39,7 @@ For detailed information about the shell’s structure and attributes, see the [
 
 Release: **CGS COS Switch Shell 2G**
 
-▪ CloudShell version **8.2**
-
-▪ Other
-
-[Include this note only if the shell is a 2G shell]
+▪ CloudShell version: 8.2 GA Patch 4, 8.3 GA Patch 2, 9.0 and above
 
 **Note:** If your CloudShell version does not support this shell, you should consider upgrading to a later version of CloudShell or contact customer support. 
 
@@ -57,42 +53,20 @@ The attribute names and types are listed in the following section of the Network
 
 https://github.com/QualiSystems/cloudshell-standards/blob/master/Documentation/networking_standard.md#attributes
 
-The following table describes attributes that are unique to this shell and are not documented in the Shell Standard: 
-
-(Include additional information, as needed, to explain non-standard attributes, i.e. differences between this shell's attributes and the commands documented in the Shell Standard.)
-
-|Attribute Name|Data Type|Description|
-|:---|:---|:---|
-||||
-||||
-||||
-||||
-
 ### Automation
 This section describes the automation (driver) associated with the data model. The shell’s driver is provided as part of the shell package. There are two types of automation processes, Autoload and Resource. Autoload is executed when creating the resource in the **Inventory** dashboard, while resource commands are run in the sandbox.
 
 The following commands are available on the resource:
 
-* 
-* 
-* 
-* 
-* 
+* Health Check
+* Run Custom Command
+* Save
+* Restore
+* Load Firmware
 
 For detailed information on each of the above commands, see the following section of the Networking Shell Standard:
 
 https://github.com/QualiSystems/cloudshell-standards/blob/master/Documentation/networking_standard.md#commands
-
-The following table describes commands that are unique to this shell and are not documented in the Shell Standard: 
-
-(Include additional information, as needed, to explain non-standard commands, i.e. differences between this shell's commands and the commands documented in the Shell Standard.)
-
-|Command|Description|
-|:---|:---|
-|||
-|||
-|||
-|||
 
 # Downloading the Shell
 The **CGS COS Switch Shell 2G** shell is available from the [Quali Community Integrations](https://community.quali.com/integrations) page.
@@ -257,14 +231,10 @@ To connect with Quali users and experts from around the world, ask questions and
 
 ### What's New
 
-[Note]: Insert link to the release section of the shell GitHub repository to view changes made in each release. You should include a brief description of the fixes and enhancements made in this release.
-
-For release updates, see the shell's [GitHub releases page](https://github.com/QualiSystems/CGSCOSSwitchShell2G/releases).
+For release updates, see the shell's [GitHub releases page](https://github.com/QualiSystems/CGS-COS-Switch-Shell-2G/releases).
 
 ### Known Issues
-* 
-* 
-* 
+* Q-in-Q VLAN is not supported
 
 
 [1]: https://github.com/QualiSystems/shellfoundry-tosca-networking-template/blob/master/cloudshell_logo.png
