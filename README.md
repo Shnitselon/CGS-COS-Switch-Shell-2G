@@ -23,7 +23,7 @@ Release date: August 2019
 A shell integrates a device model, application or other technology with CloudShell. A shell consists of a data model that defines how the device and its properties are modeled in CloudShell, along with automation that enables interaction with the device via CloudShell.
 
 ### Networking Shells
-CloudShell's networking shells provide L2 or L3 connectivity between resources and/or Apps [remove "and/or Apps" if router].
+CloudShell's networking shells provide L2 or L3 connectivity between resources and/or Apps.
 
 ### **CGS COS Switch Shell 2G**
 **CGS COS Switch Shell 2G** shell provides you with connectivity and management capabilities such as device structure discovery and power management for the resource.
@@ -77,7 +77,7 @@ The shell comprises:
 
 |File name|Description|
 |:---|:---|
-|CGSCOSSwitchShell2G.zip|Device shell package|
+|CGS.COS.Switch.Shell.2G.zip|Device shell package|
 |CGS_COS_Switch_Shell_2G_offline_dependencies.zip|Shell Python dependencies (for offline deployments only)|
 
 # Importing and Configuring the Shell
