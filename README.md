@@ -31,7 +31,7 @@ CloudShell's networking shells provide L2 or L3 connectivity between resources a
 For more information on the device, see the vendor's official product documentation.
 
 ### Standard version
-**CGS COS Switch Shell 2G** is based on the Networking Shell Standard version **5.0.4**.
+The **CGS COS Switch Shell 2G** is based on the Networking Shell Standard version **5.0.4**.
 
 For detailed information about the shell’s structure and attributes, see the [Networking Shell Standard](https://github.com/QualiSystems/cloudshell-standards/blob/master/Documentation/networking_standard.md) in GitHub.
 
@@ -158,7 +158,7 @@ You can also modify existing resources, see [Managing Resources in the Inventory
   
   4. Click **Create**.
   
-  5. In the **Resource** dialog box, enter the device's settings. For details, see [Device Name Attributes](#device-name-attributes). 
+  5. In the **Resource** dialog box, enter the device's settings. For details, see the [Networking Shell Standard's](https://github.com/QualiSystems/cloudshell-standards/blob/master/Documentation/networking_standard.md#attributes). 
   
   6. Click **Continue**. <br><br>CloudShell validates the device’s settings and updates the new resource with the device’s structure (if the device has a structure).
 
